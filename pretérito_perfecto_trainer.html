@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pretérito Perfecto — Entrenador A2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Palette: cream/terracotta/indigo — Uliana's brand language
+   ============================================================ */
+:root {
+  --cream:      #FAF7F2;
+  --cream-dark: #F0EBE1;
+  --terracotta: #C85A3A;
+  --terra-light:#E8784E;
+  --terra-pale: #F9E8E2;
+  --indigo:     #2B2459;
+  --indigo-mid: #4A3F8F;
+  --mint:       #4BBFA6;
+  --mint-pale:  #E0F5F0;
+  --gold:       #E9A826;
+  --gold-pale:  #FEF3D7;
+  --error:      #D63B3B;
+  --error-pale: #FDEAEA;
+  --success:    #2E9E6B;
+  --success-pale:#E3F8EE;
+  --text:       #1E1A35;
+  --text-mid:   #4A4566;
+  --text-light: #8A84A8;
+  --border:     #E2DDF0;
+  --shadow:     0 4px 24px rgba(43,36,89,0.10);
+  --shadow-sm:  0 2px 8px rgba(43,36,89,0.08);
+  --radius:     16px;
+  --radius-sm:  10px;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-ui:      'DM Sans', system-ui, sans-serif;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font-ui);
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+button { font-family: var(--font-ui); cursor: pointer; border: none; outline: none; }
+input, textarea { font-family: var(--font-ui); outline: none; }
+input:focus, textarea:focus { box-shadow: 0 0 0 3px rgba(43,36,89,0.18); }
+
+/* ============================================================
+   STICKY HEADER
+   ============================================================ */
+#app-header {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--indigo);
+  color: white;
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 16px;
+  height: 64px;
+  box-shadow: 0 2px 16px rgba(43,36,89,0.3);
+}
+#app-header .logo {
+  font-family: var(--font-display);
+  font-size: 1.2rem; font-weight: 700;
+  color: white; white-space: nowrap;
+}
+#progress-bar-wrap {
+  flex: 1; background: rgba(255,255,255,0.15);
+  border-radius: 99px; height: 8px; overflow: hidden;
+}
+#progress-bar {
+  height: 100%; background: var(--gold);
+  border-radius: 99px; width: 0%;
+  transition: width 0.5s ease;
+}
+#xp-badge {
+  background: var(--gold); color: var(--indigo);
+  border-radius: 99px; padding: 4px 14px;
+  font-weight: 700; font-size: 0.9rem;
+  white-space: nowrap;
+}
+#block-label {
+  font-size: 0.8rem; color: rgba(255,255,255,0.7);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   MAIN CONTAINER
+   ============================================================ */
+#app {
+  max-width: 800px; margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+.screen { display: none; animation: fadeUp 0.4s ease; }
+.screen.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   WELCOME SCREEN
+   ============================================================ */
+#screen-welcome {
+  text-align: center; padding-top: 24px;
+}
+.welcome-badge {
+  display: inline-block;
+  background: var(--terra-pale); color: var(--terracotta);
+  border-radius: 99px; padding: 6px 18px;
+  font-size: 0.85rem; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; margin-bottom: 20px;
+}
+.welcome-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 900; line-height: 1.1;
+  color: var(--indigo); margin-bottom: 12px;
+}
+.welcome-subtitle {
+  font-size: 1.05rem; color: var(--text-mid);
+  margin-bottom: 36px; max-width: 480px; margin-left: auto; margin-right: auto;
+}
+.blocks-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px; margin-bottom: 36px; text-align: left;
+}
+.block-pill {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  font-size: 0.85rem; color: var(--text-mid);
+  box-shadow: var(--shadow-sm);
+}
+.block-pill strong { display: block; color: var(--text); font-size: 0.9rem; margin-bottom: 2px; }
+.name-input-wrap {
+  background: white; border-radius: var(--radius);
+  padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px;
+}
+.name-input-wrap label { font-weight: 600; color: var(--indigo); display: block; margin-bottom: 10px; }
+.name-input-wrap input {
+  width: 100%; padding: 12px 16px;
+  border: 2px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 1rem; color: var(--text); background: var(--cream);
+  transition: border-color 0.2s;
+}
+.name-input-wrap input:focus { border-color: var(--indigo-mid); }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 99px;
+  font-size: 1rem; font-weight: 700;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--terracotta); color: white;
+  box-shadow: 0 4px 16px rgba(200,90,58,0.35);
+}
+.btn-primary:hover { box-shadow: 0 6px 24px rgba(200,90,58,0.45); transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--indigo); color: white;
+  box-shadow: 0 4px 16px rgba(43,36,89,0.25);
+}
+.btn-secondary:hover { box-shadow: 0 6px 24px rgba(43,36,89,0.35); transform: translateY(-1px); }
+.btn-ghost {
+  background: white; color: var(--indigo);
+  border: 2px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--indigo); }
+.btn-success {
+  background: var(--success); color: white;
+  box-shadow: 0 4px 16px rgba(46,158,107,0.35);
+}
+.btn-full { width: 100%; justify-content: center; }
+
+/* ============================================================
+   EXERCISE BLOCK HEADER
+   ============================================================ */
+.block-header {
+  margin-bottom: 28px;
+}
+.block-number {
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--terracotta);
+  margin-bottom: 6px;
+}
+.block-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 900; color: var(--indigo); line-height: 1.15;
+  margin-bottom: 8px;
+}
+.block-desc { color: var(--text-mid); font-size: 0.95rem; }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: white; border-radius: var(--radius);
+  padding: 24px; box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--border); margin-bottom: 16px;
+}
+.card-question {
+  font-size: 1.05rem; font-weight: 600; color: var(--text);
+  margin-bottom: 16px; line-height: 1.4;
+}
+.card-hint { font-size: 0.85rem; color: var(--text-light); margin-bottom: 14px; font-style: italic; }
+
+/* ============================================================
+   MULTIPLE CHOICE
+   ============================================================ */
+.options { display: grid; gap: 10px; }
+.option-btn {
+  text-align: left; padding: 13px 18px;
+  background: var(--cream); border: 2px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 0.97rem;
+  color: var(--text); transition: all 0.18s; font-weight: 500;
+}
+.option-btn:hover:not(:disabled) { border-color: var(--indigo-mid); background: var(--mint-pale); }
+.option-btn.correct { border-color: var(--success); background: var(--success-pale); color: var(--success); }
+.option-btn.wrong   { border-color: var(--error); background: var(--error-pale); color: var(--error); }
+.option-btn:disabled { cursor: default; }
+.option-letter {
+  display: inline-block; width: 26px; height: 26px; line-height: 26px;
+  text-align: center; background: var(--indigo); color: white;
+  border-radius: 50%; font-size: 0.8rem; font-weight: 700;
+  margin-right: 10px; flex-shrink: 0;
+}
+.option-btn.correct .option-letter { background: var(--success); }
+.option-btn.wrong .option-letter   { background: var(--error); }
+
+/* ============================================================
+   TEXT INPUT EXERCISES
+   ============================================================ */
+.fill-input {
+  width: 100%; padding: 12px 16px;
+  border: 2px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 1rem; color: var(--text); background: var(--cream);
+  transition: border-color 0.2s; margin-bottom: 12px;
+}
+.fill-input:focus { border-color: var(--indigo-mid); }
+.fill-input.correct { border-color: var(--success); background: var(--success-pale); }
+.fill-input.wrong   { border-color: var(--error); background: var(--error-pale); }
+.correct-answer { font-size: 0.88rem; color: var(--success); font-weight: 600; margin-bottom: 8px; }
+.wrong-answer-show { font-size: 0.88rem; color: var(--error); font-weight: 600; margin-bottom: 8px; }
+
+/* ============================================================
+   FEEDBACK TOAST
+   ============================================================ */
+#feedback-toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--indigo); color: white;
+  padding: 14px 28px; border-radius: 99px;
+  font-weight: 700; font-size: 1rem;
+  box-shadow: 0 8px 32px rgba(43,36,89,0.3);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 999; white-space: nowrap;
+}
+#feedback-toast.show { transform: translateX(-50%) translateY(0); }
+#feedback-toast.success { background: var(--success); }
+#feedback-toast.error   { background: var(--error); }
+
+/* ============================================================
+   SCORE WIDGET
+   ============================================================ */
+.score-widget {
+  display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.score-chip {
+  background: white; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 18px;
+  font-size: 0.88rem; color: var(--text-mid);
+  display: flex; align-items: center; gap: 6px;
+}
+.score-chip span { font-weight: 700; color: var(--text); font-size: 1rem; }
+
+/* ============================================================
+   NAVIGATION DOTS (between questions)
+   ============================================================ */
+.q-counter {
+  font-size: 0.85rem; color: var(--text-light);
+  text-align: right; margin-bottom: 8px;
+}
+
+/* ============================================================
+   FLIP CARDS (Participios)
+   ============================================================ */
+.flip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.flip-card { height: 100px; perspective: 600px; cursor: pointer; }
+.flip-card-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+.flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-front, .flip-back {
+  position: absolute; width: 100%; height: 100%;
+  backface-visibility: hidden; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1rem; padding: 8px;
+  text-align: center;
+}
+.flip-front { background: var(--indigo); color: white; box-shadow: var(--shadow-sm); }
+.flip-back  { background: var(--terracotta); color: white; transform: rotateY(180deg); }
+
+/* ============================================================
+   DRAG & DROP
+   ============================================================ */
+.drag-area {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  min-height: 60px; padding: 14px;
+  background: var(--cream-dark); border-radius: var(--radius-sm);
+  border: 2px dashed var(--border); margin-bottom: 12px;
+}
+.drag-chip {
+  padding: 8px 16px; background: var(--indigo); color: white;
+  border-radius: 99px; font-size: 0.9rem; font-weight: 600;
+  cursor: grab; user-select: none; touch-action: none;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.drag-chip:active { transform: scale(1.05); box-shadow: 0 8px 20px rgba(43,36,89,0.25); }
+.drop-zone {
+  min-height: 50px; border: 2px dashed var(--indigo-mid);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  background: white; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  transition: border-color 0.2s, background 0.2s;
+  font-size: 0.9rem; color: var(--text-light);
+}
+.drop-zone.over { border-color: var(--mint); background: var(--mint-pale); }
+.drop-zone .drag-chip { background: var(--terracotta); }
+
+/* ============================================================
+   PARTICIPIO TABLE
+   ============================================================ */
+.conj-table {
+  width: 100%; border-collapse: collapse; margin-bottom: 20px;
+  border-radius: var(--radius-sm); overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.conj-table th {
+  background: var(--indigo); color: white;
+  padding: 10px 16px; text-align: left; font-size: 0.9rem;
+}
+.conj-table td {
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  font-size: 0.95rem; background: white;
+}
+.conj-table tr:last-child td { border-bottom: none; }
+.conj-table tr:nth-child(even) td { background: var(--cream); }
+.highlight-verb { color: var(--terracotta); font-weight: 700; }
+
+/* ============================================================
+   ACHIEVEMENTS
+   ============================================================ */
+#achievements-bar {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px;
+}
+.achievement {
+  display: flex; align-items: center; gap: 8px;
+  background: white; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 14px;
+  font-size: 0.85rem; color: var(--text-light);
+  transition: all 0.3s; box-shadow: var(--shadow-sm);
+}
+.achievement.unlocked {
+  border-color: var(--gold); background: var(--gold-pale);
+  color: var(--text); box-shadow: 0 2px 12px rgba(233,168,38,0.2);
+}
+.achievement .icon { font-size: 1.3rem; }
+.achievement .name { font-weight: 600; }
+
+/* ============================================================
+   FINAL REPORT SCREEN
+   ============================================================ */
+.result-hero {
+  text-align: center; padding: 32px 24px;
+  background: var(--indigo); color: white;
+  border-radius: var(--radius); margin-bottom: 24px;
+}
+.result-percent {
+  font-family: var(--font-display);
+  font-size: 5rem; font-weight: 900;
+  color: var(--gold); line-height: 1;
+}
+.result-grade { font-size: 1.2rem; font-weight: 600; margin-top: 8px; }
+.result-detail-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px; margin-bottom: 24px;
+}
+.result-stat {
+  background: white; border-radius: var(--radius-sm);
+  padding: 18px; text-align: center; border: 1.5px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.result-stat .val {
+  font-family: var(--font-display);
+  font-size: 2rem; font-weight: 900; color: var(--indigo);
+}
+.result-stat .lbl { font-size: 0.82rem; color: var(--text-mid); margin-top: 2px; }
+
+/* ============================================================
+   TELEGRAM SEND BLOCK
+   ============================================================ */
+.telegram-block {
+  background: white; border-radius: var(--radius);
+  padding: 24px; box-shadow: var(--shadow); border: 1.5px solid var(--border);
+  margin-bottom: 24px;
+}
+.telegram-block h3 {
+  font-family: var(--font-display); font-size: 1.3rem;
+  color: var(--indigo); margin-bottom: 8px;
+}
+.telegram-block p { font-size: 0.9rem; color: var(--text-mid); margin-bottom: 16px; }
+#send-status { font-size: 0.9rem; color: var(--success); margin-top: 10px; font-weight: 600; min-height: 24px; }
+#send-status.error { color: var(--error); }
+
+/* ============================================================
+   SECTION SPACER
+   ============================================================ */
+.section-divider {
+  border: none; border-top: 2px dashed var(--border);
+  margin: 28px 0;
+}
+
+/* ============================================================
+   TEXTAREA (conversación)
+   ============================================================ */
+.convo-answer {
+  width: 100%; padding: 14px 16px;
+  border: 2px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 0.97rem; color: var(--text); background: var(--cream);
+  min-height: 80px; resize: vertical; transition: border-color 0.2s;
+  margin-bottom: 12px;
+}
+.convo-answer:focus { border-color: var(--indigo-mid); }
+.convo-saved { color: var(--success); font-size: 0.88rem; font-weight: 600; }
+
+/* ============================================================
+   ERROR HUNTER
+   ============================================================ */
+.error-sentence {
+  font-size: 1.05rem; padding: 14px 18px;
+  background: var(--error-pale); border-left: 4px solid var(--error);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 14px; font-weight: 500; color: var(--text);
+}
+
+/* ============================================================
+   NAVIGATION BUTTONS
+   ============================================================ */
+.nav-btns {
+  display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 540px) {
+  #app { padding: 20px 14px 64px; }
+  #app-header { padding: 0 14px; gap: 10px; }
+  #app-header .logo { font-size: 0.95rem; }
+  #block-label { display: none; }
+  .flip-grid { grid-template-columns: repeat(3, 1fr); }
+  .blocks-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.text-center { text-align: center; }
+.mt-4 { margin-top: 16px; }
+.mt-6 { margin-top: 24px; }
+.mb-4 { margin-bottom: 16px; }
+.hidden { display: none !important; }
+.emoji-big { font-size: 2rem; }
+
+/* Loading spinner */
+.spinner {
+  width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: white; border-radius: 50%;
+  animation: spin 0.7s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Pulse animation for XP */
+@keyframes xpPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.xp-pulse { animation: xpPulse 0.4s ease; }
+
+/* Congrats animation */
+@keyframes bounce { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-16px)} 70%{transform:translateY(-6px)} }
+.bounce { animation: bounce 0.7s ease; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     STICKY HEADER
+     ============================================================ -->
+<header id="app-header">
+  <div class="logo">🇪🇸 Pretérito Perfecto</div>
+  <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+  <div id="block-label">Bloque 1</div>
+  <div id="xp-badge">⚡ 0 XP</div>
+</header>
+
+<!-- ============================================================
+     FEEDBACK TOAST
+     ============================================================ -->
+<div id="feedback-toast">¡Correcto! +10 XP</div>
+
+<!-- ============================================================
+     MAIN APP
+     ============================================================ -->
+<main id="app">
+
+<!-- ==================== WELCOME ==================== -->
+<section id="screen-welcome" class="screen active">
+  <div class="welcome-badge">Nivel A2 · Entrenador Interactivo</div>
+  <h1 class="welcome-title">Pretérito<br><em>Perfecto</em></h1>
+  <p class="welcome-subtitle">10 bloques de práctica intensiva para dominar el pretérito perfecto en español.</p>
+
+  <div class="blocks-grid">
+    <div class="block-pill"><strong>1. Calentamiento</strong>Haber + participio</div>
+    <div class="block-pill"><strong>2. Participios</strong>Regular e irregular</div>
+    <div class="block-pill"><strong>3. Construcción</strong>Forma oraciones</div>
+    <div class="block-pill"><strong>4. Elige la forma</strong>Opción múltiple</div>
+    <div class="block-pill"><strong>5. Completa</strong>Rellena los huecos</div>
+    <div class="block-pill"><strong>6. Marcadores</strong>Hoy, ya, nunca…</div>
+    <div class="block-pill"><strong>7. Error Hunter</strong>Encuentra el error</div>
+    <div class="block-pill"><strong>8. Traducción</strong>Del ruso al español</div>
+    <div class="block-pill"><strong>9. Conversación</strong>Preguntas abiertas</div>
+    <div class="block-pill"><strong>10. Examen Final</strong>50 preguntas mixtas</div>
+  </div>
+
+  <div class="name-input-wrap">
+    <label for="student-name">👤 Nombre del alumno</label>
+    <input type="text" id="student-name" placeholder="Ej: María García" maxlength="60">
+  </div>
+
+  <button class="btn btn-primary btn-full" onclick="startTrainer()">
+    ¡Empezar el entrenador! →
+  </button>
+</section>
+
+<!-- ==================== BLOCK 1: CALENTAMIENTO ==================== -->
+<section id="screen-b1" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 1 de 10</div>
+    <h2 class="block-title">Calentamiento</h2>
+    <p class="block-desc">Recuerda la estructura: <strong>haber</strong> (presente) + <strong>participio</strong>.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--indigo);margin-bottom:14px;">Conjugación de HABER</h3>
+    <table class="conj-table">
+      <thead><tr><th>Pronombre</th><th>Haber</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>Yo</td><td class="highlight-verb">he</td><td>He comido</td></tr>
+        <tr><td>Tú</td><td class="highlight-verb">has</td><td>Has trabajado</td></tr>
+        <tr><td>Él/Ella/Usted</td><td class="highlight-verb">ha</td><td>Ha viajado</td></tr>
+        <tr><td>Nosotros</td><td class="highlight-verb">hemos</td><td>Hemos visto</td></tr>
+        <tr><td>Vosotros</td><td class="highlight-verb">habéis</td><td>Habéis hecho</td></tr>
+        <tr><td>Ellos/Ustedes</td><td class="highlight-verb">han</td><td>Han escrito</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--indigo);margin-bottom:14px;">Formación del Participio</h3>
+    <table class="conj-table">
+      <thead><tr><th>Terminación</th><th>Regla</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>-ar</td><td>→ <strong class="highlight-verb">-ado</strong></td><td>hablar → hablado</td></tr>
+        <tr><td>-er</td><td>→ <strong class="highlight-verb">-ido</strong></td><td>comer → comido</td></tr>
+        <tr><td>-ir</td><td>→ <strong class="highlight-verb">-ido</strong></td><td>vivir → vivido</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Warm-up quiz: choose correct haber form -->
+  <div id="b1-quiz-container"></div>
+
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="goToBlock(2)">Siguiente bloque →</button>
+  </div>
+</section>
+
+<!-- ==================== BLOCK 2: PARTICIPIOS ==================== -->
+<section id="screen-b2" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 2 de 10</div>
+    <h2 class="block-title">Participios</h2>
+    <p class="block-desc">Toca las tarjetas para descubrir el participio. Luego haz los ejercicios.</p>
+  </div>
+
+  <h3 style="font-size:0.9rem;font-weight:700;color:var(--terracotta);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">Regulares</h3>
+  <div id="flip-regular" class="flip-grid"></div>
+
+  <h3 style="font-size:0.9rem;font-weight:700;color:var(--indigo);text-transform:uppercase;letter-spacing:0.06em;margin:20px 0 12px;">Irregulares</h3>
+  <div id="flip-irregular" class="flip-grid"></div>
+
+  <hr class="section-divider">
+
+  <div class="block-header">
+    <h3 class="block-title" style="font-size:1.4rem;">Escribe el participio</h3>
+    <p class="block-desc">Escribe el participio correcto del verbo entre paréntesis.</p>
+  </div>
+  <div id="b2-quiz-container"></div>
+
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="goToBlock(3)">Siguiente bloque →</button>
+  </div>
+</section>
+
+<!-- ==================== BLOCK 3: CONSTRUCCIÓN ==================== -->
+<section id="screen-b3" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 3 de 10</div>
+    <h2 class="block-title">Construcción</h2>
+    <p class="block-desc">Construye oraciones en Pretérito Perfecto. Escribe la forma completa.</p>
+  </div>
+  <div id="b3-quiz-container"></div>
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="goToBlock(4)">Siguiente bloque →</button>
+  </div>
+</section>
+
+<!-- ==================== BLOCK 4: ELIGE LA FORMA ==================== -->
+<section id="screen-b4" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 4 de 10</div>
+    <h2 class="block-title">Elige la forma correcta</h2>
+    <p class="block-desc">Selecciona la opción correcta.</p>
+  </div>
+  <div id="b4-quiz-container"></div>
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="goToBlock(5)">Siguiente bloque →</button>
+  </div>
+</section>
+
+<!-- ==================== BLOCK 5: COMPLETA ==================== -->
+<section id="screen-b5" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 5 de 10</div>
+    <h2 class="block-title">Completa las frases</h2>
+    <p class="block-desc">Escribe la forma correcta del Pretérito Perfecto.</p>
+  </div>
+  <div id="b5-quiz-container"></div>
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="goToBlock(6)">Siguiente bloque →</button>
+  </div>
+</section>
+
+<!-- ==================== BLOCK 6: MARCADORES ==================== -->
+<section id="screen-b6" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 6 de 10</div>
+    <h2 class="block-title">Marcadores temporales</h2>
+    <p class="block-desc">Elige el marcador temporal más lógico para cada oración.</p>
+  </div>
+
+  <div class="card mb-4">
+    <h3 style="font-size:0.95rem;font-weight:700;color:var(--indigo);margin-bottom:10px;">Marcadores del Pretérito Perfecto</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <span style="background:var(--terra-pale);color:var(--terracotta);padding:5px 12px;border-radius:99px;font-size:0.88rem;font-weight:600;">hoy</span>
+      <span style="background:var(--terra-pale);color:var(--terracotta);padding:5px 12px;border-radius:99px;font-size:0.88rem;font-weight:600;">esta semana</span>
+      <span style="background:var(--terra-pale);color:var(--terracotta);padding:5px 12px;border-radius:99px;font-size:0.88rem;font-weight:600;">este mes</span>
+      <span style="background:var(--terra-pale);color:var(--terracotta);padding:5px 12px;border-radius:99px;font-size:0.88rem;font-weight:600;">este año</span>
+      <span style="background:var(--terra-pale);color:var(--terracotta);padding:5px 12px;border-radius:99px;font-size:0.88rem;font-weight:600;">últimamente</span>
+      <span style="background:var(--indigo);color:white;padding:5px 12px;border-radius:99px;font-size:0.88rem;font-weight:600;">ya</span>
+      <span style="background:var(--indigo);color:white;padding:5px 12px;border-radius:99px;font-size:0.88rem;font-weight:600;">todavía no</span>
+      <span style="background:var(--indigo);color:white;padding:5px 12px;border-radius:99px;font-size:0.88rem;font-weight:600;">alguna vez</span>
+      <span style="background:var(--indigo);color:white;padding:5px 12px;border-radius:99px;font-size:0.88rem;font-weight:600;">nunca</span>
+    </div>
+  </div>
+
+  <div id="b6-quiz-container"></div>
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="goToBlock(7)">Siguiente bloque →</button>
+  </div>
+</section>
+
+<!-- ==================== BLOCK 7: ERROR HUNTER ==================== -->
+<section id="screen-b7" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 7 de 10</div>
+    <h2 class="block-title">Error Hunter 🕵️</h2>
+    <p class="block-desc">Encuentra el error y escribe la versión correcta.</p>
+  </div>
+  <div id="b7-quiz-container"></div>
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="goToBlock(8)">Siguiente bloque →</button>
+  </div>
+</section>
+
+<!-- ==================== BLOCK 8: TRADUCCIÓN ==================== -->
+<section id="screen-b8" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 8 de 10</div>
+    <h2 class="block-title">Traducción</h2>
+    <p class="block-desc">Traduce las frases del ruso al español usando el Pretérito Perfecto.</p>
+  </div>
+  <div id="b8-quiz-container"></div>
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="goToBlock(9)">Siguiente bloque →</button>
+  </div>
+</section>
+
+<!-- ==================== BLOCK 9: CONVERSACIÓN ==================== -->
+<section id="screen-b9" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 9 de 10</div>
+    <h2 class="block-title">Conversación</h2>
+    <p class="block-desc">Responde a las preguntas con frases completas usando el Pretérito Perfecto. Tus respuestas se enviarán al profesor.</p>
+  </div>
+  <div id="b9-quiz-container"></div>
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="goToBlock(10)">Último bloque →</button>
+  </div>
+</section>
+
+<!-- ==================== BLOCK 10: EXAMEN FINAL ==================== -->
+<section id="screen-b10" class="screen">
+  <div class="block-header">
+    <div class="block-number">Bloque 10 de 10</div>
+    <h2 class="block-title">Examen Final 🏆</h2>
+    <p class="block-desc">50 preguntas mixtas. ¡Demuestra todo lo que has aprendido!</p>
+  </div>
+  <div id="b10-quiz-container"></div>
+  <div class="nav-btns">
+    <button class="btn btn-primary" onclick="showResults()">Ver resultados finales →</button>
+  </div>
+</section>
+
+<!-- ==================== RESULTS ==================== -->
+<section id="screen-results" class="screen">
+  <div class="result-hero" id="result-hero">
+    <div class="emoji-big bounce" id="result-emoji">🏆</div>
+    <div class="result-percent" id="result-percent">0%</div>
+    <div class="result-grade" id="result-grade">¡Excelente trabajo!</div>
+  </div>
+
+  <div class="result-detail-grid" id="result-detail"></div>
+
+  <div id="achievements-bar"></div>
+
+  <div class="card" id="block-scores-card">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--indigo);margin-bottom:14px;">📊 Detalle por bloque</h3>
+    <div id="block-scores"></div>
+  </div>
+
+  <div class="telegram-block">
+    <h3>📬 Enviar resultados al profesor</h3>
+    <p>Se enviará un informe completo con tus respuestas y resultados.</p>
+    <button class="btn btn-success btn-full" id="send-btn" onclick="sendToTelegram()">
+      Enviar resultados al profesor ✉️
+    </button>
+    <div id="send-status"></div>
+  </div>
+
+  <button class="btn btn-ghost btn-full mt-4" onclick="restartTrainer()">
+    🔄 Reiniciar entrenador
+  </button>
+</section>
+
+</main>
+
+<script>
+/* ============================================================
+   ⚙️  CONFIGURACIÓN — PON AQUÍ TUS DATOS
+   ============================================================ */
+const BOT_TOKEN = "PASTE_TOKEN_HERE";
+const CHAT_ID   = "PASTE_CHAT_ID_HERE";
+
+/* ============================================================
+   📊 ESTADO GLOBAL
+   ============================================================ */
+const state = {
+  studentName: "",
+  startTime: null,
+  xp: 0,
+  // Per-block: { correct, total, answers: [] }
+  blocks: {
+    b1: { correct: 0, total: 0, answers: [] },
+    b2: { correct: 0, total: 0, answers: [] },
+    b3: { correct: 0, total: 0, answers: [] },
+    b4: { correct: 0, total: 0, answers: [] },
+    b5: { correct: 0, total: 0, answers: [] },
+    b6: { correct: 0, total: 0, answers: [] },
+    b7: { correct: 0, total: 0, answers: [] },
+    b8: { correct: 0, total: 0, answers: [] },
+    b9: { answers: [] },              // Open answers
+    b10:{ correct: 0, total: 0, answers: [] },
+  },
+  achievements: {
+    participioPro:  false,
+    reyPerfecto:    false,
+    cazadorErrores: false,
+    perfectoExpert: false,
+  }
+};
+
+let totalBlocks = 10;
+let currentBlock = 0;
+
+/* ============================================================
+   🎲 DATA — EJERCICIOS
+   ============================================================ */
+
+// ---- BLOCK 1: Haber conjugation quiz ----
+const b1Data = [
+  { q: "Yo ___ viajado a España.", opts:["he","has","ha","hemos"], ans: 0 },
+  { q: "Tú ___ comido paella.", opts:["he","has","ha","han"], ans: 1 },
+  { q: "Ella ___ visto la película.", opts:["he","has","ha","hemos"], ans: 2 },
+  { q: "Nosotros ___ hecho los deberes.", opts:["he","han","hemos","habéis"], ans: 2 },
+  { q: "Vosotros ___ escrito un correo.", opts:["han","habéis","hemos","ha"], ans: 1 },
+  { q: "Ellos ___ abierto el libro.", opts:["he","has","hemos","han"], ans: 3 },
+  { q: "Usted ___ dicho la verdad.", opts:["he","has","ha","han"], ans: 2 },
+  { q: "Yo ___ roto el vaso.", opts:["has","he","ha","hemos"], ans: 1 },
+  { q: "¿Tú ___ vuelto ya?", opts:["he","ha","has","han"], ans: 2 },
+  { q: "María y Juan ___ puesto la mesa.", opts:["he","han","hemos","habéis"], ans: 1 },
+  { q: "Nosotros ___ vivido aquí mucho tiempo.", opts:["habéis","han","hemos","he"], ans: 2 },
+  { q: "¿Vosotros ___ probado el gazpacho?", opts:["habéis","hemos","han","ha"], ans: 0 },
+];
+
+// ---- BLOCK 2: Participio writing ----
+const regularParticipios = [
+  { inf: "hablar", part: "hablado" },
+  { inf: "comer",  part: "comido"  },
+  { inf: "vivir",  part: "vivido"  },
+  { inf: "trabajar", part: "trabajado" },
+  { inf: "beber",  part: "bebido"  },
+  { inf: "salir",  part: "salido"  },
+  { inf: "llegar", part: "llegado" },
+  { inf: "recibir",part: "recibido"},
+  { inf: "caminar",part: "caminado"},
+  { inf: "aprender",part:"aprendido"},
+];
+const irregularParticipios = [
+  { inf: "hacer",   part: "hecho"   },
+  { inf: "decir",   part: "dicho"   },
+  { inf: "ver",     part: "visto"   },
+  { inf: "poner",   part: "puesto"  },
+  { inf: "abrir",   part: "abierto" },
+  { inf: "escribir",part: "escrito" },
+  { inf: "romper",  part: "roto"    },
+  { inf: "volver",  part: "vuelto"  },
+  { inf: "morir",   part: "muerto"  },
+];
+const b2QuizData = [
+  { q: "hablar → (participio)", ans: "hablado" },
+  { q: "comer → (participio)",  ans: "comido"  },
+  { q: "vivir → (participio)",  ans: "vivido"  },
+  { q: "hacer → (participio)",  ans: "hecho"   },
+  { q: "decir → (participio)",  ans: "dicho"   },
+  { q: "ver → (participio)",    ans: "visto"   },
+  { q: "poner → (participio)",  ans: "puesto"  },
+  { q: "abrir → (participio)",  ans: "abierto" },
+  { q: "escribir → (participio)", ans: "escrito"},
+  { q: "romper → (participio)", ans: "roto"    },
+  { q: "volver → (participio)", ans: "vuelto"  },
+  { q: "morir → (participio)",  ans: "muerto"  },
+  { q: "trabajar → (participio)", ans: "trabajado" },
+  { q: "beber → (participio)",  ans: "bebido"  },
+  { q: "salir → (participio)",  ans: "salido"  },
+];
+
+// ---- BLOCK 3: Build sentences ----
+const b3Data = [
+  { q: "yo / comer / pizza", hint: "Escribe la oración completa.", ans: ["he comido pizza","he comido una pizza"] },
+  { q: "ella / hablar / con el médico", ans: ["ha hablado con el médico"] },
+  { q: "nosotros / ver / una película", ans: ["hemos visto una película"] },
+  { q: "tú / hacer / los deberes", ans: ["has hecho los deberes"] },
+  { q: "ellos / viajar / a México", ans: ["han viajado a méxico","han viajado a mexico"] },
+  { q: "yo / abrir / la ventana", ans: ["he abierto la ventana"] },
+  { q: "vosotros / escribir / un correo", ans: ["habéis escrito un correo"] },
+  { q: "él / poner / la mesa", ans: ["ha puesto la mesa"] },
+  { q: "yo / romper / el vaso", ans: ["he roto el vaso"] },
+  { q: "tú / volver / tarde", ans: ["has vuelto tarde"] },
+  { q: "nosotros / aprender / mucho", ans: ["hemos aprendido mucho"] },
+  { q: "ella / decir / la verdad", ans: ["ha dicho la verdad"] },
+  { q: "yo / trabajar / todo el día", ans: ["he trabajado todo el día","he trabajado todo el dia"] },
+  { q: "ellos / llegar / ya", ans: ["han llegado ya","ya han llegado"] },
+  { q: "tú / beber / agua", ans: ["has bebido agua"] },
+  { q: "usted / vivir / en Madrid", ans: ["ha vivido en madrid","ha vivido en Madrid"] },
+  { q: "nosotros / salir / de casa", ans: ["hemos salido de casa"] },
+  { q: "yo / leer / el libro", ans: ["he leído el libro"] },
+  { q: "ella / comprar / un regalo", ans: ["ha comprado un regalo"] },
+  { q: "vosotros / ver / a María", ans: ["habéis visto a maría","habéis visto a maria"] },
+  { q: "él / abrir / la puerta", ans: ["ha abierto la puerta"] },
+  { q: "yo / terminar / el trabajo", ans: ["he terminado el trabajo"] },
+  { q: "tú / recibir / una carta", ans: ["has recibido una carta"] },
+  { q: "nosotros / hacer / ejercicio", ans: ["hemos hecho ejercicio"] },
+  { q: "ellas / hablar / con el profesor", ans: ["han hablado con el profesor"] },
+  { q: "yo / escribir / un email", ans: ["he escrito un email","he escrito un correo"] },
+  { q: "tú / poner / música", ans: ["has puesto música","has puesto musica"] },
+  { q: "ella / morir / de risa", ans: ["ha muerto de risa"] },
+  { q: "nosotros / decir / hola", ans: ["hemos dicho hola"] },
+  { q: "ellos / romper / el contrato", ans: ["han roto el contrato"] },
+];
+
+// ---- BLOCK 4: Multiple choice ----
+const b4Data = [
+  { q: "Yo ___ visitado Madrid.", opts:["he","soy","estoy","fui"], ans:0 },
+  { q: "¿___ comido hoy?", opts:["¿Has","¿Eres","¿Estás","¿Fuiste"], ans:0 },
+  { q: "Ella ___ escrito tres libros.", opts:["ha","es","fue","está"], ans:0 },
+  { q: "Nosotros ___ visto esa película.", opts:["hemos","somos","fuimos","estamos"], ans:0 },
+  { q: "¿Vosotros ___ hecho los deberes?", opts:["habéis","sois","fuisteis","estáis"], ans:0 },
+  { q: "Ellos ___ llegado tarde.", opts:["han","son","fueron","están"], ans:0 },
+  { q: "Hoy yo ___ trabajado mucho.", opts:["he","fui","era","estaba"], ans:0 },
+  { q: "Este año ___ aprendido mucho.", opts:["he","aprendí","aprendía","aprendo"], ans:0 },
+  { q: "¿Alguna vez ___ probado el sushi?", opts:["has","fuiste","eres","estás"], ans:0 },
+  { q: "Nunca ___ viajado a Asia.", opts:["he","fui","era","voy"], ans:0 },
+  { q: "Ya ___ terminado el proyecto.", opts:["hemos","fuimos","éramos","íbamos"], ans:0 },
+  { q: "Últimamente ___ estado muy ocupado.", opts:["he","fui","era","soy"], ans:0 },
+  { q: "Esta semana ___ comido mucha fruta.", opts:["he","comí","como","comía"], ans:0 },
+  { q: "¿Todavía no ___ llegado?", opts:["ha","llegó","llega","llegaba"], ans:0 },
+  { q: "Ella ___ roto el vaso.", opts:["ha","rompió","rompe","rompía"], ans:0 },
+  { q: "Este mes ___ ahorrado dinero.", opts:["hemos","ahorramos","ahorrábamos","ahorramos"], ans:0 },
+  { q: "¿Tú ___ visto a Pedro hoy?", opts:["has","viste","ves","veías"], ans:0 },
+  { q: "Nunca ___ estado en Japón.", opts:["han","estuvieron","estaban","están"], ans:0 },
+  { q: "Hoy mi madre ___ preparado paella.", opts:["ha","preparó","prepara","preparaba"], ans:0 },
+  { q: "¿Ya ___ desayunado?", opts:["habéis","desayunasteis","desayunáis","desayunabais"], ans:0 },
+  { q: "Yo todavía no ___ hecho la cama.", opts:["he","hice","hacía","hago"], ans:0 },
+  { q: "Este año ___ viajado a tres países.", opts:["he","viajé","viajaba","viajo"], ans:0 },
+  { q: "¿___ alguna vez comido curry?", opts:["Has","Fuiste","Eres","Estás"], ans:0 },
+  { q: "Él ___ puesto las llaves en la mesa.", opts:["ha","puso","ponía","pone"], ans:0 },
+  { q: "Esta mañana ___ despertado tarde.", opts:["me he","me fui","me era","me estoy"], ans:0 },
+  { q: "Nunca ___ vuelto a ese restaurante.", opts:["hemos","volvimos","volvíamos","volvemos"], ans:0 },
+  { q: "¿Alguna vez ___ esquiado?", opts:["has","fuiste","eres","esquías"], ans:0 },
+  { q: "Hoy ___ dicho una mentira.", opts:["he","dije","decía","digo"], ans:0 },
+  { q: "¿Cuántas veces ___ llamado?", opts:["has","llamaste","llamas","llamabas"], ans:0 },
+  { q: "Ya ___ decidido lo que quiero.", opts:["he","decidí","decidía","decido"], ans:0 },
+  { q: "Últimamente no ___ dormido bien.", opts:["he","dormí","dormía","duermo"], ans:0 },
+  { q: "Este año el equipo ___ ganado dos trofeos.", opts:["ha","ganó","ganaba","gana"], ans:0 },
+  { q: "¿Vosotros ___ leído el artículo?", opts:["habéis","leísteis","leéis","leíais"], ans:0 },
+  { q: "Hoy por fin ___ terminado el libro.", opts:["he","terminé","terminaba","termino"], ans:0 },
+  { q: "Esta semana ___ nevado mucho.", opts:["ha","nevó","nevaba","nieva"], ans:0 },
+  { q: "¿Alguna vez ___ tocado un instrumento?", opts:["has","tocaste","tocas","tocabas"], ans:0 },
+  { q: "Ellos todavía no ___ contestado.", opts:["han","contestaron","contestan","contestaban"], ans:0 },
+  { q: "Yo nunca ___ probado las ostras.", opts:["he","probé","probaba","pruebo"], ans:0 },
+  { q: "¿Usted ___ estado en Perú?", opts:["ha","estuvo","estaba","está"], ans:0 },
+  { q: "Hoy nosotros ___ conocido a su familia.", opts:["hemos","conocimos","conocíamos","conocemos"], ans:0 },
+];
+
+// ---- BLOCK 5: Fill in (conjugated PP) ----
+const b5Data = [
+  { q: "Esta semana yo _____ (leer) tres libros.", ans: "he leído" },
+  { q: "Hoy tú _____ (hablar) con el médico.", ans: "has hablado" },
+  { q: "Esta mañana ella _____ (comer) pizza.", ans: "ha comido" },
+  { q: "Este año nosotros _____ (viajar) a Italia.", ans: "hemos viajado" },
+  { q: "¿Alguna vez vosotros _____ (ver) la aurora boreal?", ans: "habéis visto" },
+  { q: "Ellos nunca _____ (probar) el gazpacho.", ans: "han probado" },
+  { q: "Yo ya _____ (hacer) los deberes.", ans: "he hecho" },
+  { q: "¿Tú _____ (escribir) el correo?", ans: "has escrito" },
+  { q: "Hoy él _____ (poner) la mesa.", ans: "ha puesto" },
+  { q: "Últimamente nosotros _____ (trabajar) mucho.", ans: "hemos trabajado" },
+  { q: "Este mes ellas _____ (ahorrar) dinero.", ans: "han ahorrado" },
+  { q: "¿Usted alguna vez _____ (vivir) en el extranjero?", ans: "ha vivido" },
+  { q: "Hoy yo _____ (romper) el vaso.", ans: "he roto" },
+  { q: "¿Vosotros _____ (volver) del viaje?", ans: "habéis vuelto" },
+  { q: "Esta tarde tú _____ (salir) temprano.", ans: "has salido" },
+  { q: "Este año ella _____ (aprender) francés.", ans: "ha aprendido" },
+  { q: "Hoy nosotros _____ (abrir) la tienda tarde.", ans: "hemos abierto" },
+  { q: "¿Ellos ya _____ (llegar)?", ans: "han llegado" },
+  { q: "Yo nunca _____ (decir) eso.", ans: "he dicho" },
+  { q: "Esta semana tú _____ (recibir) mucha correspondencia.", ans: "has recibido" },
+  { q: "Hoy él _____ (beber) mucha agua.", ans: "ha bebido" },
+  { q: "Últimamente nosotros _____ (ver) muchas series.", ans: "hemos visto" },
+  { q: "Este año yo _____ (cambiar) de trabajo.", ans: "he cambiado" },
+  { q: "¿Tú _____ (terminar) el proyecto?", ans: "has terminado" },
+  { q: "Ellas _____ (morir) de risa.", ans: "han muerto" },
+  { q: "Este mes vosotros _____ (gastar) mucho dinero.", ans: "habéis gastado" },
+  { q: "Hoy yo _____ (levantarse) muy tarde. [reflexivo]", ans: "me he levantado" },
+  { q: "Esta semana ella _____ (ducharse) por la mañana. [reflexivo]", ans: "se ha duchado" },
+  { q: "¿Usted _____ (descansar) bien?", ans: "ha descansado" },
+  { q: "Este año nosotros _____ (conocer) a mucha gente.", ans: "hemos conocido" },
+  { q: "Hoy tú _____ (comprar) comida.", ans: "has comprado" },
+  { q: "Ellos aún no _____ (decidir).", ans: "han decidido" },
+  { q: "Este mes yo _____ (limpiar) el apartamento dos veces.", ans: "he limpiado" },
+  { q: "¿Vosotros _____ (estudiar) para el examen?", ans: "habéis estudiado" },
+  { q: "Hoy ella _____ (preparar) una sorpresa.", ans: "ha preparado" },
+  { q: "Últimamente ellos _____ (perder) muchos partidos.", ans: "han perdido" },
+  { q: "Este año yo no _____ (viajar) todavía.", ans: "he viajado" },
+  { q: "¿Tú _____ (ver) a tu familia esta semana?", ans: "has visto" },
+  { q: "Hoy nosotros _____ (descubrir) un restaurante nuevo.", ans: "hemos descubierto" },
+  { q: "Este mes él _____ (publicar) tres artículos.", ans: "ha publicado" },
+];
+
+// ---- BLOCK 6: Marcadores temporales ----
+const b6Data = [
+  { q: "_____ he comido en ese restaurante.", opts:["Nunca","Ayer por la noche","El año pasado","En 1990"], ans:0, correct:"nunca" },
+  { q: "_____ he terminado los deberes.", opts:["Ya","Ayer","En 2010","Hace un año"], ans:0, correct:"ya" },
+  { q: "_____ no he recibido respuesta.", opts:["Todavía","Ayer","En mayo","Hace dos días"], ans:0, correct:"todavía" },
+  { q: "_____ hemos viajado mucho.", opts:["Este año","El año pasado","En 2019","Hace años"], ans:0, correct:"este año" },
+  { q: "_____ ella ha trabajado en casa.", opts:["Hoy","Ayer","El lunes pasado","Hace una semana"], ans:0, correct:"hoy" },
+  { q: "¿_____ has estado en París?", opts:["Alguna vez","Ayer","En enero","Hace mucho"], ans:0, correct:"alguna vez" },
+  { q: "_____ hemos tenido muchos problemas.", opts:["Últimamente","Hace meses","El mes pasado","En febrero"], ans:0, correct:"últimamente" },
+  { q: "_____ no han llegado.", opts:["Todavía","Ayer","El martes","Hace dos horas"], ans:0, correct:"todavía" },
+  { q: "_____ he leído ese libro.", opts:["Ya","El año pasado","En 2021","Hace tiempo"], ans:0, correct:"ya" },
+  { q: "_____ hemos aprendido muchas cosas.", opts:["Esta semana","La semana pasada","Hace días","En octubre"], ans:0, correct:"esta semana" },
+  { q: "_____ has comido?", opts:["¿Hoy","¿Ayer","¿El domingo","¿En 2020"], ans:0, correct:"hoy" },
+  { q: "_____ he visto esa película.", opts:["Nunca","Ayer","En 2018","Hace años"], ans:0, correct:"nunca" },
+  { q: "_____ ella ha llamado dos veces.", opts:["Hoy","El lunes","En marzo","Hace tiempo"], ans:0, correct:"hoy" },
+  { q: "_____ hemos conocido a su familia.", opts:["Este mes","El mes pasado","En verano","Hace meses"], ans:0, correct:"este mes" },
+  { q: "_____ ha llovido mucho.", opts:["Últimamente","Ayer","En enero","Hace semanas"], ans:0, correct:"últimamente" },
+  { q: "¿_____ has probado la tortilla española?", opts:["Alguna vez","Ayer","En abril","Hace poco"], ans:0, correct:"alguna vez" },
+  { q: "_____ he cambiado de opinión.", opts:["Ya","El lunes","En 2022","Hace días"], ans:0, correct:"ya" },
+  { q: "_____ han viajado ellos a Asia.", opts:["Nunca","Ayer","En agosto","Hace años"], ans:0, correct:"nunca" },
+];
+
+// ---- BLOCK 7: Error Hunter ----
+const b7Data = [
+  { q: "❌ Yo he fui al cine.", correct: "Yo he ido al cine.", ans:["he ido","yo he ido al cine"] },
+  { q: "❌ Ella haber comido paella.", correct: "Ella ha comido paella.", ans:["ha comido","ella ha comido paella"] },
+  { q: "❌ Nosotros hemos ir al parque.", correct: "Nosotros hemos ido al parque.", ans:["hemos ido","nosotros hemos ido al parque"] },
+  { q: "❌ Tú has hacer los deberes.", correct: "Tú has hecho los deberes.", ans:["has hecho","tú has hecho los deberes"] },
+  { q: "❌ Ellos han escribir una carta.", correct: "Ellos han escrito una carta.", ans:["han escrito","ellos han escrito una carta"] },
+  { q: "❌ Yo ha viajado a París.", correct: "Yo he viajado a París.", ans:["he viajado","yo he viajado a parís","yo he viajado a paris"] },
+  { q: "❌ ¿Vosotros habéis ver la película?", correct: "¿Vosotros habéis visto la película?", ans:["habéis visto","vosotros habéis visto la película"] },
+  { q: "❌ Él ha ponido la mesa.", correct: "Él ha puesto la mesa.", ans:["ha puesto","él ha puesto la mesa"] },
+  { q: "❌ ¿Has alguna vez comido sushi?", correct: "¿Has comido sushi alguna vez?", ans:["has comido","¿has comido sushi alguna vez?","has comido sushi alguna vez"] },
+  { q: "❌ Nosotros hemos abrido la ventana.", correct: "Nosotros hemos abierto la ventana.", ans:["hemos abierto","nosotros hemos abierto la ventana"] },
+  { q: "❌ Ella ha rompido el vaso.", correct: "Ella ha roto el vaso.", ans:["ha roto","ella ha roto el vaso"] },
+  { q: "❌ Yo he decido cambiar de trabajo.", correct: "Yo he decidido cambiar de trabajo.", ans:["he decidido","yo he decidido cambiar de trabajo"] },
+  { q: "❌ Ellos han morido de risa.", correct: "Ellos han muerto de risa.", ans:["han muerto","ellos han muerto de risa"] },
+  { q: "❌ Tú has volvido tarde.", correct: "Tú has vuelto tarde.", ans:["has vuelto","tú has vuelto tarde"] },
+  { q: "❌ Usted ha diched la verdad.", correct: "Usted ha dicho la verdad.", ans:["ha dicho","usted ha dicho la verdad"] },
+  { q: "❌ Este año he trabajado ayer.", correct: "Este año he trabajado mucho.", ans:["este año he trabajado mucho","he trabajado mucho"] },
+  { q: "❌ Yo he vivido en Madrid hace diez años.", correct: "Yo viví en Madrid hace diez años. (Indefinido)", ans:["viví","yo viví en madrid hace diez años"] },
+  { q: "❌ Ayer hemos ido al cine.", correct: "Ayer fuimos al cine. (Indefinido)", ans:["fuimos","ayer fuimos al cine"] },
+  { q: "❌ Hemos llegado aquí en 2010.", correct: "Llegamos aquí en 2010. (Indefinido)", ans:["llegamos","llegamos aquí en 2010"] },
+  { q: "❌ ¿Tú has llamado ayer?", correct: "¿Llamaste ayer? (Indefinido)", ans:["llamaste","¿llamaste ayer?"] },
+  { q: "❌ Él ha ido al mercado el lunes pasado.", correct: "Él fue al mercado el lunes pasado. (Indefinido)", ans:["fue","él fue al mercado el lunes pasado"] },
+  { q: "❌ Nosotros hemos nacido en 1990.", correct: "Nosotros nacimos en 1990. (Indefinido)", ans:["nacimos","nosotros nacimos en 1990"] },
+  { q: "❌ Yo me he levantado ayer a las 7.", correct: "Yo me levanté ayer a las 7. (Indefinido)", ans:["me levanté","yo me levanté ayer a las 7"] },
+  { q: "❌ Esta mañana yo soy muy cansado.", correct: "Esta mañana he estado muy cansado.", ans:["he estado","he estado muy cansado"] },
+  { q: "❌ Hoy ellos se han ido al colegio a las 8 del mañana.", correct: "Hoy ellos se han ido al colegio a las 8 de la mañana.", ans:["de la mañana","a las 8 de la mañana"] },
+];
+
+// ---- BLOCK 8: Translation ----
+const b8Data = [
+  { q: "🇷🇺 Я уже сделал домашнее задание.", hint:"ya / hacer / deberes", ans: ["ya he hecho los deberes","ya he hecho mis deberes"] },
+  { q: "🇷🇺 Сегодня я поговорил с мамой.", hint:"hoy / hablar / madre", ans: ["hoy he hablado con mi madre","hoy he hablado con mamá"] },
+  { q: "🇷🇺 В этом году мы много путешествовали.", hint:"este año / viajar / mucho", ans: ["este año hemos viajado mucho"] },
+  { q: "🇷🇺 Ты когда-нибудь ел суши?", hint:"alguna vez / comer / sushi", ans: ["¿has comido sushi alguna vez?","¿alguna vez has comido sushi?"] },
+  { q: "🇷🇺 Она никогда не была в Испании.", hint:"nunca / estar / España", ans: ["ella nunca ha estado en españa","nunca ha estado en españa"] },
+  { q: "🇷🇺 На этой неделе я написал три письма.", hint:"esta semana / escribir / cartas", ans: ["esta semana he escrito tres cartas"] },
+  { q: "🇷🇺 Мы уже видели этот фильм.", hint:"ya / ver / película", ans: ["ya hemos visto esa película","ya hemos visto la película"] },
+  { q: "🇷🇺 Сегодня утром она приготовила паэлью.", hint:"esta mañana / preparar / paella", ans: ["esta mañana ha preparado paella","esta mañana ella ha preparado paella"] },
+  { q: "🇷🇺 Последнее время он много работает.", hint:"últimamente / trabajar / mucho", ans: ["últimamente ha trabajado mucho","últimamente él ha trabajado mucho"] },
+  { q: "🇷🇺 Вы когда-нибудь жили за границей?", hint:"alguna vez / vivir / extranjero", ans: ["¿alguna vez ha vivido en el extranjero?","¿alguna vez has vivido en el extranjero?"] },
+  { q: "🇷🇺 Они ещё не ответили.", hint:"todavía / no / contestar", ans: ["todavía no han contestado"] },
+  { q: "🇷🇺 Сегодня я сломал стакан.", hint:"hoy / romper / vaso", ans: ["hoy he roto el vaso"] },
+  { q: "🇷🇺 Мы открыли новый магазин в этом месяце.", hint:"este mes / abrir / tienda", ans: ["este mes hemos abierto una tienda","este mes hemos abierto la tienda nueva"] },
+  { q: "🇷🇺 Ты уже позвонил ей?", hint:"ya / llamar / ella", ans: ["¿ya la has llamado?","¿ya has llamado a ella?"] },
+  { q: "🇷🇺 В этом году я много читал.", hint:"este año / leer / mucho", ans: ["este año he leído mucho"] },
+  { q: "🇷🇺 Сегодня я вернулся поздно.", hint:"hoy / volver / tarde", ans: ["hoy he vuelto tarde"] },
+  { q: "🇷🇺 Они никогда не пробовали испанскую еду.", hint:"nunca / probar / comida española", ans: ["nunca han probado la comida española","nunca han probado comida española"] },
+  { q: "🇷🇺 Мы познакомились с его семьёй на этой неделе.", hint:"esta semana / conocer / familia", ans: ["esta semana hemos conocido a su familia"] },
+  { q: "🇷🇺 Она положила ключи на стол.", hint:"poner / llaves / mesa", ans: ["ha puesto las llaves en la mesa","ella ha puesto las llaves en la mesa"] },
+  { q: "🇷🇺 В этом году я много сэкономил.", hint:"este año / ahorrar / dinero", ans: ["este año he ahorrado mucho dinero","este año he ahorrado mucho"] },
+  { q: "🇷🇺 Вы уже поели?", hint:"ya / comer / vosotros", ans: ["¿ya habéis comido?","¿ya han comido?"] },
+  { q: "🇷🇺 Сегодня я не завтракал.", hint:"hoy / no / desayunar", ans: ["hoy no he desayunado"] },
+  { q: "🇷🇺 Последнее время я плохо сплю.", hint:"últimamente / dormir / mal", ans: ["últimamente he dormido mal","últimamente no he dormido bien"] },
+  { q: "🇷🇺 Он написал пять книг.", hint:"escribir / cinco libros", ans: ["ha escrito cinco libros","él ha escrito cinco libros"] },
+  { q: "🇷🇺 Мы ещё не решили.", hint:"todavía / no / decidir", ans: ["todavía no hemos decidido"] },
+  { q: "🇷🇺 Сегодня выпал снег.", hint:"hoy / nevar", ans: ["hoy ha nevado"] },
+  { q: "🇷🇺 Ты когда-нибудь катался на горных лыжах?", hint:"alguna vez / esquiar", ans: ["¿has esquiado alguna vez?","¿alguna vez has esquiado?"] },
+  { q: "🇷🇺 Они вернулись домой поздно ночью.", hint:"volver / tarde / noche", ans: ["han vuelto a casa tarde","han vuelto tarde a casa"] },
+  { q: "🇷🇺 Я никогда не говорил ему этого.", hint:"nunca / decir / eso", ans: ["nunca le he dicho eso"] },
+  { q: "🇷🇺 На этой неделе мы открыли новый проект.", hint:"esta semana / abrir / proyecto", ans: ["esta semana hemos abierto un proyecto","esta semana hemos abierto un nuevo proyecto"] },
+];
+
+// ---- BLOCK 9: Conversación ----
+const b9Data = [
+  "¿Qué has hecho hoy?",
+  "¿Has viajado este año? ¿Adónde?",
+  "¿Has probado alguna comida española? ¿Cuál?",
+  "¿Qué películas has visto últimamente?",
+  "¿Has aprendido algo nuevo esta semana?",
+  "¿Alguna vez has cometido un error que nunca olvidarás?",
+  "¿Has cambiado algo en tu vida este año?",
+  "¿Has hablado con alguien interesante recientemente?",
+  "¿Qué libros has leído últimamente?",
+  "¿Has hecho ejercicio esta semana?",
+];
+
+// ---- BLOCK 10: Final exam (mix of all types) ----
+const b10Data = [
+  // type: "mc" (multiple choice) or "fill" (fill in)
+  { type:"mc", q:"Yo ___ comido hoy.", opts:["he","soy","fui","como"], ans:0 },
+  { type:"fill", q:"Esta semana ella _____ (escribir) muchos correos.", ans:"ha escrito" },
+  { type:"mc", q:"¿___ viajado a México?", opts:["Has","Eres","Fuiste","Ibas"], ans:0 },
+  { type:"fill", q:"Nosotros _____ (ver) tres películas este mes.", ans:"hemos visto" },
+  { type:"mc", q:"Ella ___ roto el espejo.", opts:["ha","rompió","rompe","rompía"], ans:0 },
+  { type:"fill", q:"¿Vosotros _____ (hablar) con el director hoy?", ans:"habéis hablado" },
+  { type:"mc", q:"___ año he aprendido mucho.", opts:["Este","El año pasado","Hace dos","En el"], ans:0 },
+  { type:"fill", q:"Yo nunca _____ (probar) las ostras.", ans:"he probado" },
+  { type:"mc", q:"¿Alguna vez ___ hablado con un nativo?", opts:["has","eres","fuiste","ibas"], ans:0 },
+  { type:"fill", q:"Hoy él _____ (poner) la mesa.", ans:"ha puesto" },
+  { type:"mc", q:"Nunca ___ estado en Rusia.", opts:["hemos","fuimos","éramos","estábamos"], ans:0 },
+  { type:"fill", q:"Esta mañana tú _____ (levantarse) tarde. [reflexivo]", ans:"te has levantado" },
+  { type:"mc", q:"___ no han llegado.", opts:["Todavía","Ayer","En 2020","Hace años"], ans:0 },
+  { type:"fill", q:"Últimamente yo _____ (trabajar) demasiado.", ans:"he trabajado" },
+  { type:"mc", q:"Hoy nosotros ___ descubierto algo increíble.", opts:["hemos","fuimos","éramos","somos"], ans:0 },
+  { type:"fill", q:"¿Ellos _____ (volver) ya?", ans:"han vuelto" },
+  { type:"mc", q:"¿___ alguna vez visto el Mar Rojo?", opts:["Has","Eres","Fuiste","Ves"], ans:0 },
+  { type:"fill", q:"Este año vosotros _____ (ahorrar) dinero.", ans:"habéis ahorrado" },
+  { type:"mc", q:"Ella ___ abierto la puerta.", opts:["ha","abrió","abría","abre"], ans:0 },
+  { type:"fill", q:"Hoy yo _____ (romper) el vaso.", ans:"he roto" },
+  { type:"mc", q:"¿Cuántas veces ___ llamado?", opts:["has","llamaste","llamas","llamabas"], ans:0 },
+  { type:"fill", q:"Esta semana ellos _____ (hacer) ejercicio.", ans:"han hecho" },
+  { type:"mc", q:"Yo nunca ___ dicho eso.", opts:["he","dije","decía","digo"], ans:0 },
+  { type:"fill", q:"Usted _____ (vivir) muchos años en Madrid.", ans:"ha vivido" },
+  { type:"mc", q:"___ hemos trabajado mucho.", opts:["Últimamente","Ayer","En enero","Hace años"], ans:0 },
+  { type:"fill", q:"¿Tú _____ (ver) a Pedro hoy?", ans:"has visto" },
+  { type:"mc", q:"Ellos ___ muerto de risa.", opts:["han","murieron","morían","mueren"], ans:0 },
+  { type:"fill", q:"Esta semana nosotros _____ (descubrir) un restaurante nuevo.", ans:"hemos descubierto" },
+  { type:"mc", q:"¿ ___ comido sushi alguna vez?", opts:["Has","Fuiste","Eres","Ibas"], ans:0 },
+  { type:"fill", q:"Hoy ella _____ (preparar) una sorpresa.", ans:"ha preparado" },
+  { type:"mc", q:"Este año yo ___ cambiado de trabajo.", opts:["he","cambié","cambiaba","cambio"], ans:0 },
+  { type:"fill", q:"¿Vosotros _____ (abrir) la tienda?", ans:"habéis abierto" },
+  { type:"mc", q:"Todavía no ___ decidido.", opts:["hemos","decidimos","decidíamos","decidimos"], ans:0 },
+  { type:"fill", q:"Hoy tú _____ (decir) algo interesante.", ans:"has dicho" },
+  { type:"mc", q:"¿___ nevado esta semana?", opts:["Ha","Nevó","Neva","Nevaba"], ans:0 },
+  { type:"fill", q:"Últimamente yo _____ (dormir) mal.", ans:"he dormido" },
+  { type:"mc", q:"Ella ___ escrito cinco novelas.", opts:["ha","escribió","escribía","escribe"], ans:0 },
+  { type:"fill", q:"Este año ellas _____ (aprender) a bailar.", ans:"han aprendido" },
+  { type:"mc", q:"¿Alguna vez ___ esquiado?", opts:["has","fuiste","eres","esquías"], ans:0 },
+  { type:"fill", q:"Hoy nosotros _____ (comer) en un restaurante nuevo.", ans:"hemos comido" },
+  { type:"mc", q:"Nunca ___ probado el pulpo.", opts:["he","probé","probaba","pruebo"], ans:0 },
+  { type:"fill", q:"Este mes él _____ (publicar) tres artículos.", ans:"ha publicado" },
+  { type:"mc", q:"Ya ___ llegado.", opts:["han","llegaron","llegan","llegaban"], ans:0 },
+  { type:"fill", q:"¿Tú _____ (terminar) el libro?", ans:"has terminado" },
+  { type:"mc", q:"Este año ___ sido muy difícil.", opts:["ha","fue","era","es"], ans:0 },
+  { type:"fill", q:"Hoy vosotros _____ (salir) temprano.", ans:"habéis salido" },
+  { type:"mc", q:"¿___ conocido a su familia?", opts:["Has","Fuiste","Eres","Ibas"], ans:0 },
+  { type:"fill", q:"Últimamente ella _____ (estar) muy ocupada.", ans:"ha estado" },
+  { type:"mc", q:"Hoy yo ___ vuelto tarde.", opts:["he","fui","era","voy"], ans:0 },
+  { type:"fill", q:"Este año nosotros _____ (cambiar) de ciudad.", ans:"hemos cambiado" },
+];
+
+/* ============================================================
+   🚀 INITIALIZATION
+   ============================================================ */
+function startTrainer() {
+  const nameInput = document.getElementById("student-name").value.trim();
+  if (!nameInput) {
+    showToast("Por favor, escribe tu nombre 👤", "error");
+    return;
+  }
+  state.studentName = nameInput;
+  state.startTime = Date.now();
+  buildAllBlocks();
+  goToBlock(1);
+}
+
+function buildAllBlocks() {
+  buildB1();
+  buildB2();
+  buildB3();
+  buildB4();
+  buildB5();
+  buildB6();
+  buildB7();
+  buildB8();
+  buildB9();
+  buildB10();
+}
+
+/* ============================================================
+   🧱 BLOCK BUILDERS
+   ============================================================ */
+
+// ---- B1: Haber quiz (multiple choice) ----
+function buildB1() {
+  const c = document.getElementById("b1-quiz-container");
+  c.innerHTML = "";
+  b1Data.forEach((item, i) => {
+    c.appendChild(buildMCQuestion(item, i, "b1"));
+  });
+  state.blocks.b1.total = b1Data.length;
+}
+
+// ---- B2: Flip cards + participio writing ----
+function buildB2() {
+  // Flip cards regular
+  const regEl = document.getElementById("flip-regular");
+  regularParticipios.forEach(p => {
+    regEl.appendChild(buildFlipCard(p.inf, p.part));
+  });
+  // Flip cards irregular
+  const irrEl = document.getElementById("flip-irregular");
+  irregularParticipios.forEach(p => {
+    irrEl.appendChild(buildFlipCard(p.inf, p.part));
+  });
+  // Writing quiz
+  const c = document.getElementById("b2-quiz-container");
+  b2QuizData.forEach((item, i) => {
+    c.appendChild(buildTextQuestion(item, i, "b2"));
+  });
+  state.blocks.b2.total = b2QuizData.length;
+}
+
+function buildFlipCard(front, back) {
+  const el = document.createElement("div");
+  el.className = "flip-card";
+  el.innerHTML = `<div class="flip-card-inner">
+    <div class="flip-front">${front}</div>
+    <div class="flip-back">${back}</div>
+  </div>`;
+  el.addEventListener("click", () => el.classList.toggle("flipped"));
+  return el;
+}
+
+// ---- B3: Build sentences (text input, flexible matching) ----
+function buildB3() {
+  const c = document.getElementById("b3-quiz-container");
+  b3Data.forEach((item, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="q-counter">Pregunta ${i+1} de ${b3Data.length}</div>
+      <div class="card-question">🧩 Construye: <strong>${item.q}</strong></div>
+      ${item.hint ? `<div class="card-hint">${item.hint}</div>` : ""}
+      <input type="text" class="fill-input" id="b3-inp-${i}" placeholder="Escribe la oración completa…" oninput="autoCheck3(${i})">
+      <div id="b3-fb-${i}" style="min-height:22px;"></div>
+    `;
+    c.appendChild(card);
+  });
+  state.blocks.b3.total = b3Data.length;
+}
+
+function autoCheck3(i) {
+  const inp = document.getElementById(`b3-inp-${i}`);
+  const fb  = document.getElementById(`b3-fb-${i}`);
+  const val = inp.value.trim().toLowerCase().replace(/[¿¡]/g,"").replace(/[áàä]/g,"a").replace(/[éèë]/g,"e").replace(/[íìï]/g,"i").replace(/[óòö]/g,"o").replace(/[úùü]/g,"u");
+  const ok = b3Data[i].ans.some(a => normalize(a) === val);
+  if (ok) {
+    inp.className = "fill-input correct";
+    fb.innerHTML = `<span class="correct-answer">✅ ¡Correcto!</span>`;
+    recordAnswer("b3", i, true, inp.value);
+    addXP(10);
+  } else {
+    inp.className = "fill-input";
+    fb.innerHTML = "";
+  }
+}
+
+// ---- B4: Multiple choice ----
+function buildB4() {
+  const c = document.getElementById("b4-quiz-container");
+  b4Data.forEach((item, i) => {
+    c.appendChild(buildMCQuestion(item, i, "b4"));
+  });
+  state.blocks.b4.total = b4Data.length;
+}
+
+// ---- B5: Fill in blanks ----
+function buildB5() {
+  const c = document.getElementById("b5-quiz-container");
+  b5Data.forEach((item, i) => {
+    c.appendChild(buildTextQuestion(item, i, "b5"));
+  });
+  state.blocks.b5.total = b5Data.length;
+}
+
+// ---- B6: Marcadores (multiple choice) ----
+function buildB6() {
+  const c = document.getElementById("b6-quiz-container");
+  b6Data.forEach((item, i) => {
+    c.appendChild(buildMCQuestion(item, i, "b6"));
+  });
+  state.blocks.b6.total = b6Data.length;
+}
+
+// ---- B7: Error hunter (text input) ----
+function buildB7() {
+  const c = document.getElementById("b7-quiz-container");
+  b7Data.forEach((item, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="q-counter">Pregunta ${i+1} de ${b7Data.length}</div>
+      <div class="error-sentence">${item.q}</div>
+      <div class="card-hint">Escribe la versión correcta:</div>
+      <input type="text" class="fill-input" id="b7-inp-${i}" placeholder="Versión correcta…">
+      <button class="btn btn-ghost" style="margin-top:8px;" onclick="checkB7(${i})">Comprobar</button>
+      <div id="b7-fb-${i}" style="min-height:24px;margin-top:8px;"></div>
+    `;
+    c.appendChild(card);
+  });
+  state.blocks.b7.total = b7Data.length;
+}
+
+function checkB7(i) {
+  const inp = document.getElementById(`b7-inp-${i}`);
+  const fb  = document.getElementById(`b7-fb-${i}`);
+  const val = normalize(inp.value);
+  const ok = b7Data[i].ans.some(a => normalize(a) === val || val.includes(normalize(a)));
+  inp.className = "fill-input " + (ok ? "correct" : "wrong");
+  if (ok) {
+    fb.innerHTML = `<span class="correct-answer">✅ ¡Correcto!</span>`;
+    recordAnswer("b7", i, true, inp.value);
+    addXP(15);
+  } else {
+    fb.innerHTML = `<span class="wrong-answer-show">❌ Respuesta correcta: ${b7Data[i].correct}</span>`;
+    recordAnswer("b7", i, false, inp.value);
+  }
+  inp.disabled = true;
+}
+
+// ---- B8: Translation (text input, flexible) ----
+function buildB8() {
+  const c = document.getElementById("b8-quiz-container");
+  b8Data.forEach((item, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="q-counter">Pregunta ${i+1} de ${b8Data.length}</div>
+      <div class="card-question">${item.q}</div>
+      <div class="card-hint">💡 Pista: ${item.hint}</div>
+      <input type="text" class="fill-input" id="b8-inp-${i}" placeholder="Escribe en español…">
+      <button class="btn btn-ghost" style="margin-top:8px;" onclick="checkB8(${i})">Comprobar</button>
+      <div id="b8-fb-${i}" style="min-height:24px;margin-top:8px;"></div>
+    `;
+    c.appendChild(card);
+  });
+  state.blocks.b8.total = b8Data.length;
+}
+
+function checkB8(i) {
+  const inp = document.getElementById(`b8-inp-${i}`);
+  const fb  = document.getElementById(`b8-fb-${i}`);
+  const val = normalize(inp.value);
+  const ok = b8Data[i].ans.some(a => normalize(a) === val);
+  inp.className = "fill-input " + (ok ? "correct" : "wrong");
+  if (ok) {
+    fb.innerHTML = `<span class="correct-answer">✅ ¡Correcto!</span>`;
+    recordAnswer("b8", i, true, inp.value);
+    addXP(15);
+  } else {
+    fb.innerHTML = `<span class="wrong-answer-show">❌ Posible respuesta: ${b8Data[i].ans[0]}</span>`;
+    recordAnswer("b8", i, false, inp.value);
+  }
+  inp.disabled = true;
+}
+
+// ---- B9: Conversación ----
+function buildB9() {
+  const c = document.getElementById("b9-quiz-container");
+  b9Data.forEach((q, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="card-question">💬 ${q}</div>
+      <textarea class="convo-answer" id="b9-ans-${i}" placeholder="Responde aquí con frases completas…"></textarea>
+      <button class="btn btn-ghost" style="margin-bottom:8px;" onclick="saveB9(${i}, this)">Guardar respuesta ✓</button>
+      <div id="b9-saved-${i}"></div>
+    `;
+    c.appendChild(card);
+  });
+}
+
+function saveB9(i, btn) {
+  const ans = document.getElementById(`b9-ans-${i}`).value.trim();
+  if (!ans) return;
+  state.blocks.b9.answers[i] = { q: b9Data[i], a: ans };
+  document.getElementById(`b9-saved-${i}`).innerHTML = `<span class="convo-saved">✅ Guardado</span>`;
+  btn.textContent = "✓ Guardado";
+  btn.disabled = true;
+  addXP(20);
+}
+
+// ---- B10: Final exam ----
+function buildB10() {
+  const c = document.getElementById("b10-quiz-container");
+  b10Data.forEach((item, i) => {
+    if (item.type === "mc") {
+      c.appendChild(buildMCQuestion(item, i, "b10"));
+    } else {
+      c.appendChild(buildTextQuestion(item, i, "b10"));
+    }
+  });
+  state.blocks.b10.total = b10Data.length;
+}
+
+/* ============================================================
+   🔧 SHARED BUILDERS
+   ============================================================ */
+function buildMCQuestion(item, i, blockKey) {
+  const letters = ["A","B","C","D"];
+  const card = document.createElement("div");
+  card.className = "card";
+  const optsHtml = item.opts.map((o, j) => `
+    <button class="option-btn" id="${blockKey}-opt-${i}-${j}" onclick="checkMC('${blockKey}',${i},${j})">
+      <span class="option-letter">${letters[j]}</span>${o}
+    </button>
+  `).join("");
+  card.innerHTML = `
+    <div class="q-counter">Pregunta ${i+1}</div>
+    <div class="card-question">${item.q}</div>
+    <div class="options">${optsHtml}</div>
+    <div id="${blockKey}-fb-${i}" style="min-height:20px;margin-top:10px;font-size:0.88rem;"></div>
+  `;
+  return card;
+}
+
+function checkMC(blockKey, i, chosen) {
+  const data = { b1:b1Data, b4:b4Data, b6:b6Data, b10:b10Data }[blockKey];
+  if (!data) return;
+  const item = data[i];
+  const correct = item.ans;
+  const correct_already = document.getElementById(`${blockKey}-opt-${i}-0`)?.disabled;
+  if (correct_already) return;
+  // Disable all
+  for (let j = 0; j < item.opts.length; j++) {
+    const btn = document.getElementById(`${blockKey}-opt-${i}-${j}`);
+    if (btn) btn.disabled = true;
+  }
+  const chosenBtn = document.getElementById(`${blockKey}-opt-${i}-${chosen}`);
+  const correctBtn = document.getElementById(`${blockKey}-opt-${i}-${correct}`);
+  if (chosen === correct) {
+    chosenBtn.classList.add("correct");
+    showToast("¡Correcto! +10 XP", "success");
+    recordAnswer(blockKey, i, true, item.opts[chosen]);
+    addXP(10);
+  } else {
+    chosenBtn.classList.add("wrong");
+    if (correctBtn) correctBtn.classList.add("correct");
+    showToast("Incorrecto 😕", "error");
+    recordAnswer(blockKey, i, false, item.opts[chosen]);
+    const fb = document.getElementById(`${blockKey}-fb-${i}`);
+    if (fb) fb.innerHTML = `<span class="wrong-answer-show">✅ Respuesta: ${item.opts[correct]}</span>`;
+  }
+}
+
+function buildTextQuestion(item, i, blockKey) {
+  const data = { b2:b2QuizData, b5:b5Data, b10:(b10Data.filter(d=>d.type==="fill")) }[blockKey];
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="q-counter">Pregunta ${i+1}</div>
+    <div class="card-question">${item.q}</div>
+    <input type="text" class="fill-input" id="${blockKey}-inp-${i}" placeholder="Escribe aquí…">
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="checkText('${blockKey}',${i})">Comprobar</button>
+    <div id="${blockKey}-fb-${i}" style="min-height:24px;margin-top:8px;"></div>
+  `;
+  return card;
+}
+
+function checkText(blockKey, i) {
+  const inp = document.getElementById(`${blockKey}-inp-${i}`);
+  const fb  = document.getElementById(`${blockKey}-fb-${i}`);
+  if (!inp || inp.disabled) return;
+  const dataMap = { b2:b2QuizData, b5:b5Data };
+  let item;
+  if (dataMap[blockKey]) {
+    item = dataMap[blockKey][i];
+  } else if (blockKey === "b10") {
+    // find fill items
+    const fillItems = b10Data.filter(d => d.type==="fill");
+    item = fillItems[i];
+  }
+  if (!item) return;
+  const val = normalize(inp.value);
+  const ok  = normalize(item.ans) === val;
+  inp.className = "fill-input " + (ok ? "correct" : "wrong");
+  if (ok) {
+    fb.innerHTML = `<span class="correct-answer">✅ ¡Correcto!</span>`;
+    recordAnswer(blockKey, i, true, inp.value);
+    addXP(10);
+    showToast("¡Correcto! +10 XP", "success");
+  } else {
+    fb.innerHTML = `<span class="wrong-answer-show">❌ Respuesta correcta: ${item.ans}</span>`;
+    recordAnswer(blockKey, i, false, inp.value);
+    showToast("Incorrecto", "error");
+  }
+  inp.disabled = true;
+}
+
+/* ============================================================
+   🧮 HELPERS
+   ============================================================ */
+function normalize(str) {
+  return str.trim().toLowerCase()
+    .replace(/[¿¡.,;:!?]/g,"")
+    .replace(/á/g,"a").replace(/é/g,"e").replace(/í/g,"i")
+    .replace(/ó/g,"o").replace(/ú/g,"u").replace(/ü/g,"u").replace(/ñ/g,"n");
+}
+
+function recordAnswer(blockKey, qIdx, correct, answer) {
+  const b = state.blocks[blockKey];
+  if (!b.answers[qIdx]) {
+    b.answers[qIdx] = { correct, answer };
+    if (correct) b.correct = (b.correct || 0) + 1;
+  }
+}
+
+function addXP(amount) {
+  state.xp += amount;
+  const badge = document.getElementById("xp-badge");
+  badge.textContent = `⚡ ${state.xp} XP`;
+  badge.classList.remove("xp-pulse");
+  void badge.offsetWidth;
+  badge.classList.add("xp-pulse");
+}
+
+function showToast(msg, type="success") {
+  const t = document.getElementById("feedback-toast");
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => { t.className = ""; }, 1800);
+}
+
+function updateProgressBar(blockNum) {
+  const pct = Math.round((blockNum / totalBlocks) * 100);
+  document.getElementById("progress-bar").style.width = pct + "%";
+  document.getElementById("block-label").textContent = `Bloque ${blockNum}`;
+}
+
+/* ============================================================
+   🗺️ NAVIGATION
+   ============================================================ */
+function goToBlock(n) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const target = n === 0 ? "screen-welcome" : (n === 11 ? "screen-results" : `screen-b${n}`);
+  const el = document.getElementById(target);
+  if (el) { el.classList.add("active"); window.scrollTo(0,0); }
+  currentBlock = n;
+  if (n > 0 && n <= 10) updateProgressBar(n);
+  checkAchievements(n);
+}
+
+function showResults() {
+  checkAchievements(11);
+  const allCorrect = Object.entries(state.blocks)
+    .filter(([k]) => k !== "b9")
+    .reduce((s, [, v]) => s + (v.correct || 0), 0);
+  const allTotal = Object.entries(state.blocks)
+    .filter(([k]) => k !== "b9")
+    .reduce((s, [, v]) => s + (v.total || 0), 0);
+  const pct = allTotal > 0 ? Math.round((allCorrect / allTotal) * 100) : 0;
+  const elapsed = Math.round((Date.now() - state.startTime) / 60000);
+
+  document.getElementById("result-percent").textContent = pct + "%";
+  const grade = pct >= 90 ? "🏆 ¡Sobresaliente! Eres un experto." :
+                pct >= 75 ? "🌟 ¡Muy bien! Sigue practicando." :
+                pct >= 60 ? "👍 Bien, pero puedes mejorar." :
+                            "💪 ¡Sigue estudiando! Tú puedes.";
+  document.getElementById("result-grade").textContent = grade;
+
+  document.getElementById("result-detail").innerHTML = `
+    <div class="result-stat"><div class="val">${pct}%</div><div class="lbl">Resultado global</div></div>
+    <div class="result-stat"><div class="val">${allCorrect}</div><div class="lbl">✅ Correctas</div></div>
+    <div class="result-stat"><div class="val">${allTotal - allCorrect}</div><div class="lbl">❌ Errores</div></div>
+    <div class="result-stat"><div class="val">${elapsed} min</div><div class="lbl">⏱ Tiempo</div></div>
+    <div class="result-stat"><div class="val">${state.xp}</div><div class="lbl">⚡ XP ganados</div></div>
+  `;
+
+  // Block scores
+  const names = ["Calentamiento","Participios","Construcción","Elige la forma","Completa","Marcadores","Error Hunter","Traducción","Conversación","Examen Final"];
+  const bsEl = document.getElementById("block-scores");
+  bsEl.innerHTML = Object.entries(state.blocks).map(([k, v], i) => {
+    if (k === "b9") {
+      const n = v.answers.filter(Boolean).length;
+      return `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:0.92rem;display:flex;justify-content:space-between;"><span><strong>Bloque ${i+1}:</strong> ${names[i]}</span><span style="color:var(--mint);font-weight:700;">${n}/${b9Data.length} respondidas</span></div>`;
+    }
+    const c = v.correct || 0; const t = v.total || 0;
+    const p = t > 0 ? Math.round(c/t*100) : 0;
+    const col = p >= 75 ? "var(--success)" : p >= 50 ? "var(--gold)" : "var(--error)";
+    return `<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:0.92rem;display:flex;justify-content:space-between;"><span><strong>Bloque ${i+1}:</strong> ${names[i]}</span><span style="color:${col};font-weight:700;">${c}/${t} (${p}%)</span></div>`;
+  }).join("");
+
+  // Achievements
+  renderAchievements();
+
+  goToBlock(11);
+}
+
+/* ============================================================
+   🏆 ACHIEVEMENTS
+   ============================================================ */
+function checkAchievements(blockNum) {
+  if (blockNum >= 2 && (state.blocks.b2.correct || 0) >= 10) state.achievements.participioPro = true;
+  if (blockNum >= 5 && (state.blocks.b4.correct || 0) + (state.blocks.b5.correct || 0) >= 40) state.achievements.reyPerfecto = true;
+  if (blockNum >= 7 && (state.blocks.b7.correct || 0) >= 15) state.achievements.cazadorErrores = true;
+  const total = Object.entries(state.blocks).filter(([k])=>k!=="b9").reduce((s,[,v])=>s+(v.correct||0),0);
+  const max = Object.entries(state.blocks).filter(([k])=>k!=="b9").reduce((s,[,v])=>s+(v.total||0),0);
+  if (max > 0 && total/max >= 0.85) state.achievements.perfectoExpert = true;
+}
+
+function renderAchievements() {
+  const el = document.getElementById("achievements-bar");
+  const list = [
+    { key:"participioPro",  icon:"📚", name:"Maestro del Participio", desc:"Dominas los participios" },
+    { key:"reyPerfecto",    icon:"👑", name:"Rey del Perfecto",       desc:"Elige y rellena como un pro" },
+    { key:"cazadorErrores", icon:"🕵️", name:"Cazador de Errores",    desc:"Ojo clínico para errores" },
+    { key:"perfectoExpert", icon:"🏆", name:"Perfecto Expert",        desc:"85%+ en el entrenador" },
+  ];
+  el.innerHTML = list.map(a => `
+    <div class="achievement ${state.achievements[a.key] ? "unlocked" : ""}">
+      <span class="icon">${a.icon}</span>
+      <span class="name">${a.name}</span>
+      <span style="font-size:0.78rem;color:var(--text-light)">${state.achievements[a.key] ? "✓" : "🔒"}</span>
+    </div>
+  `).join("");
+}
+
+/* ============================================================
+   ✈️ TELEGRAM
+   ============================================================ */
+async function sendToTelegram() {
+  const btn = document.getElementById("send-btn");
+  const status = document.getElementById("send-status");
+  btn.innerHTML = `<span class="spinner"></span> Enviando…`;
+  btn.disabled = true;
+
+  const allCorrect = Object.entries(state.blocks).filter(([k])=>k!=="b9").reduce((s,[,v])=>s+(v.correct||0),0);
+  const allTotal   = Object.entries(state.blocks).filter(([k])=>k!=="b9").reduce((s,[,v])=>s+(v.total||0),0);
+  const pct = allTotal > 0 ? Math.round(allCorrect/allTotal*100) : 0;
+  const elapsed = Math.round((Date.now() - state.startTime) / 60000);
+  const names = ["Calentamiento","Participios","Construcción","Elige la forma","Completa","Marcadores","Error Hunter","Traducción","Conversación","Examen Final"];
+  const blockLines = Object.entries(state.blocks).map(([k,v],i) => {
+    if (k==="b9") return `  ${i+1}. ${names[i]}: ${v.answers.filter(Boolean).length}/${b9Data.length} respuestas`;
+    const c=v.correct||0,t=v.total||0;
+    return `  ${i+1}. ${names[i]}: ${c}/${t} (${t>0?Math.round(c/t*100):0}%)`;
+  }).join("\n");
+
+  const convoAnswers = state.blocks.b9.answers.filter(Boolean).map((a,i)=>`  Q: ${a.q}\n  A: ${a.a}`).join("\n\n");
+
+  const achList = [
+    ["participioPro","📚 Maestro del Participio"],
+    ["reyPerfecto","👑 Rey del Perfecto"],
+    ["cazadorErrores","🕵️ Cazador de Errores"],
+    ["perfectoExpert","🏆 Perfecto Expert"],
+  ].filter(([k])=>state.achievements[k]).map(([,n])=>n).join(", ") || "Ninguno aún";
+
+  const now = new Date().toLocaleString("es-ES");
+
+  const text = `📚 <b>Pretérito Perfecto — Informe</b>\n\n` +
+    `👤 <b>Alumno:</b> ${state.studentName}\n` +
+    `📅 <b>Fecha:</b> ${now}\n` +
+    `⏱ <b>Tiempo:</b> ${elapsed} min\n` +
+    `🎯 <b>Resultado:</b> ${pct}%\n` +
+    `✅ <b>Correctas:</b> ${allCorrect}\n` +
+    `❌ <b>Errores:</b> ${allTotal - allCorrect}\n` +
+    `⚡ <b>XP ganados:</b> ${state.xp}\n\n` +
+    `🏆 <b>Logros:</b> ${achList}\n\n` +
+    `📊 <b>Detalle por bloque:</b>\n${blockLines}\n\n` +
+    `💬 <b>Respuestas de conversación:</b>\n${convoAnswers || "  (sin respuestas)"}\n\n` +
+    `━━━━━━━━━━━━━━━━━━`;
+
+  try {
+    const resp = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: CHAT_ID, text, parse_mode: "HTML" })
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      status.textContent = "✅ ¡Resultados enviados al profesor!";
+      status.className = "";
+      btn.innerHTML = "✅ Enviado";
+    } else {
+      throw new Error(data.description || "Error desconocido");
+    }
+  } catch(e) {
+    status.textContent = `❌ Error: ${e.message}. Comprueba el token y el chat_id.`;
+    status.className = "error";
+    btn.innerHTML = "Reintentar ✉️";
+    btn.disabled = false;
+  }
+}
+
+/* ============================================================
+   🔄 RESTART
+   ============================================================ */
+function restartTrainer() {
+  location.reload();
+}
+
+/* ============================================================
+   🎉 INIT
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("screen-welcome").classList.add("active");
+});
+</script>
+</body>
+</html>
